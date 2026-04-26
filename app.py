@@ -819,11 +819,6 @@ with tab_agent:
     for msg in st.session_state.agent_messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
-            if msg["role"] == "assistant" and "trace" in msg:
-                try:
-                    _render_trace(msg["trace"])
-                except Exception:
-                    pass  # silently skip trace render on history re-display
 
     # --- Chat input ---
     user_input = st.chat_input("Ask PawPal+ anything about your pets…")
@@ -857,11 +852,7 @@ with tab_agent:
                     )
 
             if trace is not None:
-                try:
-                    st.markdown(trace.final_response)
-                    _render_trace(trace)
-                except Exception as render_exc:
-                    st.warning(f"Could not render reasoning trace: {render_exc}")
+                st.markdown(trace.final_response)
 
                 # Update metrics
                 st.session_state.agent_total_tool_calls += trace.total_tool_calls

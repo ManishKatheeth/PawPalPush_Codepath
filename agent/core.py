@@ -101,8 +101,9 @@ def run_agent(
 
         # Build message list: prior history (up to last 10 turns) + current message
         history = (conversation_history or [])[-10:]
+        state_ctx = _build_state_context(owner)
         if iteration == 0:
-            system_prompt = PLANNER_SYSTEM_PROMPT
+            system_prompt = PLANNER_SYSTEM_PROMPT.format(state_context=state_ctx)
             messages: list[dict[str, Any]] = history + [{"role": "user", "content": user_message}]
         else:
             # Replan: inject verifier issues into the system prompt
@@ -378,3 +379,29 @@ def _summarise_result(result: dict[str, Any]) -> str:
         keys = [k for k in result if k not in ("success",)]
         return "✓ " + ", ".join(f"{k}={result[k]!r}" for k in keys[:3])
     return "✗ " + result.get("error", "error")
+
+
+def _build_state_context(owner: Owner) -> str:
+    """Snapshot the current owner state as a plain-text summary for the system prompt.
+
+    Injecting this at the start of every call means Claude always knows which
+    pets and tasks exist, even in a brand-new session with no conversation history.
+    """
+    from datetime import date as _date
+    today = _date.today().isoformat()
+    lines = [f"Owner: {owner.name}  |  Today: {today}"]
+    pets = owner.get_pets()
+    if not pets:
+        lines.append("No pets registered yet.")
+    else:
+        for pet in pets:
+            tasks = pet.get_tasks()
+            task_summary = (
+                ", ".join(
+                    f"{t.description} @ {t.time} ({t.frequency}, due {t.due_date})"
+                    for t in tasks
+                )
+                if tasks else "no tasks"
+            )
+            lines.append(f"- {pet.name} [{pet.species}] (pet_id={pet.pet_id}): {task_summary}")
+    return "\n".join(lines)
