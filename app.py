@@ -513,7 +513,6 @@ def _render_trace(trace) -> None:
     summary = (
         f"Reasoning trace — {trace.total_tool_calls} tool call(s), "
         f"{trace.iterations} iteration(s), "
-        f"confidence {conf:.2f}, "
         f"{'✅ verified' if success else '⚠️ issues flagged'}"
     )
 

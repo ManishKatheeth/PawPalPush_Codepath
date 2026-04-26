@@ -144,7 +144,7 @@ def run_harness() -> None:
 
         t0 = time.monotonic()
         try:
-            trace = run_agent(scenario.request, owner)
+            trace = run_agent(scenario.request, owner, persist=False)
         except Exception as exc:
             trace = _error_trace(scenario.request, str(exc))
             print(f"  ERROR during agent run: {exc}")

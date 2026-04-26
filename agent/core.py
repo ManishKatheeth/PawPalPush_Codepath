@@ -56,6 +56,7 @@ def run_agent(
     user_message: str,
     owner: Owner,
     conversation_history: list[dict[str, Any]] | None = None,
+    persist: bool = True,
 ) -> ReasoningTrace:
     """Run the full plan-act-verify-replan loop for one user turn.
 
@@ -64,6 +65,8 @@ def run_agent(
         owner: The current Owner instance (reads and mutates state).
         conversation_history: Optional list of prior {role, content} dicts
             (alternating user/assistant) to give Claude context across turns.
+        persist: If False, tool mutations are kept in-memory only (used by
+            the eval harness to avoid polluting the production data file).
 
     Returns:
         A fully populated ReasoningTrace that the UI renders as a timeline.
@@ -88,7 +91,7 @@ def run_agent(
         return trace
 
     client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
-    executor = ToolExecutor(owner=owner, persist=True)
+    executor = ToolExecutor(owner=owner, persist=persist)
 
     best_response = ""
     verifier_result: dict[str, Any] = {}
