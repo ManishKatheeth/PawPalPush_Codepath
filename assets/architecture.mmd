@@ -17,8 +17,8 @@ flowchart TD
     subgraph AgentCore["Agent Core Loop (core.py)"]
         Plan["1️⃣  Plan\n&lt;plan&gt; block"]
         Act["2️⃣  Act\nTool-use loop"]
-        Verify["3️⃣  Verify\nSeparate Claude call"]
-        Replan["4️⃣  Replan\n(if confidence &lt; 0.7)"]
+        Verify["3️⃣  Verify\nSeparate Claude call\n(+tool log)"]
+        Replan["4️⃣  Replan\n(if confidence &lt; 0.7, max 2x)"]
     end
 
     subgraph ToolLayer["Tool Layer (tools.py)"]
