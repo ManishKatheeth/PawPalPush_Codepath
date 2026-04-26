@@ -835,12 +835,19 @@ with tab_agent:
         with st.chat_message("user"):
             st.markdown(user_input)
 
+        # Build conversation history for multi-turn context (text only, no trace objects)
+        history = [
+            {"role": m["role"], "content": m["content"]}
+            for m in st.session_state.agent_messages
+            if m["role"] in ("user", "assistant") and m.get("content")
+        ]
+
         # Run agent
         with st.chat_message("assistant"):
             with st.spinner("Thinking…"):
                 try:
                     from agent.core import run_agent
-                    trace = run_agent(user_input, owner)
+                    trace = run_agent(user_input, owner, conversation_history=history)
                     storage.save(owner)
                 except Exception as exc:
                     trace = None

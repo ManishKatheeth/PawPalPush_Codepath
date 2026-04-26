@@ -52,12 +52,18 @@ logging.getLogger().setLevel(logging.INFO)
 # Public entry point
 # ---------------------------------------------------------------------------
 
-def run_agent(user_message: str, owner: Owner) -> ReasoningTrace:
+def run_agent(
+    user_message: str,
+    owner: Owner,
+    conversation_history: list[dict[str, Any]] | None = None,
+) -> ReasoningTrace:
     """Run the full plan-act-verify-replan loop for one user turn.
 
     Args:
         user_message: The raw text from the chat input.
         owner: The current Owner instance (reads and mutates state).
+        conversation_history: Optional list of prior {role, content} dicts
+            (alternating user/assistant) to give Claude context across turns.
 
     Returns:
         A fully populated ReasoningTrace that the UI renders as a timeline.
@@ -90,9 +96,11 @@ def run_agent(user_message: str, owner: Owner) -> ReasoningTrace:
     for iteration in range(config.MAX_ITERATIONS):
         trace.iterations += 1
 
+        # Build message list: prior history (up to last 10 turns) + current message
+        history = (conversation_history or [])[-10:]
         if iteration == 0:
             system_prompt = PLANNER_SYSTEM_PROMPT
-            messages: list[dict[str, Any]] = [{"role": "user", "content": user_message}]
+            messages: list[dict[str, Any]] = history + [{"role": "user", "content": user_message}]
         else:
             # Replan: inject verifier issues into the system prompt
             system_prompt = REPLAN_SYSTEM_PROMPT.format(
@@ -100,7 +108,7 @@ def run_agent(user_message: str, owner: Owner) -> ReasoningTrace:
                 original_request=user_message,
                 previous_response=best_response,
             )
-            messages = [{"role": "user", "content": user_message}]
+            messages = history + [{"role": "user", "content": user_message}]
 
         response_text, tool_call_count, trace = _act_loop(
             client=client,
