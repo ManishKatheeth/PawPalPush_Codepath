@@ -498,6 +498,51 @@ for col, val, lbl in zip(
 
 
 # ---------------------------------------------------------------------------
+# Helper — must be defined before the tab blocks that call it
+# ---------------------------------------------------------------------------
+
+def _render_trace(trace) -> None:
+    """Render a ReasoningTrace as a collapsible timeline inside an expander."""
+    if not trace or not trace.steps:
+        return
+
+    conf = trace.verifier_result.get("confidence", 0)
+    success = trace.verifier_result.get("success", False)
+    summary = (
+        f"Reasoning trace — {trace.total_tool_calls} tool call(s), "
+        f"{trace.iterations} iteration(s), "
+        f"confidence {conf:.2f}, "
+        f"{'✅ verified' if success else '⚠️ issues flagged'}"
+    )
+
+    with st.expander(summary, expanded=False):
+        for step in trace.steps:
+            icon = trace.phase_icon(step.phase)
+            phase_label = step.phase.replace("_", " ").title()
+            st.markdown(
+                f"**{icon} Step {step.step_num} — {phase_label}** "
+                f"<span style='font-size:0.75rem;color:#9C8A7B;'>({step.duration_ms:.0f} ms)</span>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f"<div style='margin-left:1.5rem;font-size:0.875rem;color:#1C1C1C;"
+                f"background:#F8F5F0;border-radius:6px;padding:0.5rem 0.75rem;"
+                f"border-left:3px solid #E07B39;margin-bottom:0.5rem;'>"
+                f"{step.content}</div>",
+                unsafe_allow_html=True,
+            )
+            if step.raw:
+                with st.expander(f"Show raw data — step {step.step_num}", expanded=False):
+                    st.json(step.raw)
+
+        st.markdown(
+            f"<div style='font-size:0.75rem;color:#9C8A7B;margin-top:0.5rem;'>"
+            f"Total: {trace.total_duration_ms:.0f} ms end-to-end</div>",
+            unsafe_allow_html=True,
+        )
+
+
+# ---------------------------------------------------------------------------
 # Tabs
 # ---------------------------------------------------------------------------
 tab_pets, tab_schedule, tab_today, tab_agent = st.tabs(
@@ -816,44 +861,3 @@ with tab_agent:
                 # Refresh owner ref so sidebar stats update
                 st.session_state.owner = owner
                 st.rerun()
-
-
-def _render_trace(trace) -> None:
-    """Render a ReasoningTrace as a collapsible timeline inside an expander."""
-    if not trace or not trace.steps:
-        return
-
-    conf = trace.verifier_result.get("confidence", 0)
-    success = trace.verifier_result.get("success", False)
-    summary = (
-        f"Reasoning trace — {trace.total_tool_calls} tool call(s), "
-        f"{trace.iterations} iteration(s), "
-        f"confidence {conf:.2f}, "
-        f"{'✅ verified' if success else '⚠️ issues flagged'}"
-    )
-
-    with st.expander(summary, expanded=False):
-        for step in trace.steps:
-            icon = trace.phase_icon(step.phase)
-            phase_label = step.phase.replace("_", " ").title()
-            st.markdown(
-                f"**{icon} Step {step.step_num} — {phase_label}** "
-                f"<span style='font-size:0.75rem;color:#9C8A7B;'>({step.duration_ms:.0f} ms)</span>",
-                unsafe_allow_html=True,
-            )
-            st.markdown(
-                f"<div style='margin-left:1.5rem;font-size:0.875rem;color:#1C1C1C;"
-                f"background:#F8F5F0;border-radius:6px;padding:0.5rem 0.75rem;"
-                f"border-left:3px solid #E07B39;margin-bottom:0.5rem;'>"
-                f"{step.content}</div>",
-                unsafe_allow_html=True,
-            )
-            if step.raw:
-                with st.expander(f"Show raw data — step {step.step_num}", expanded=False):
-                    st.json(step.raw)
-
-        st.markdown(
-            f"<div style='font-size:0.75rem;color:#9C8A7B;margin-top:0.5rem;'>"
-            f"Total: {trace.total_duration_ms:.0f} ms end-to-end</div>",
-            unsafe_allow_html=True,
-        )
