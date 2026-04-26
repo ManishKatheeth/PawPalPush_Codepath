@@ -6,5 +6,18 @@ __pycache__/
 dist/
 build/
 .env
+*.env
 .venv/
+venv/
+env/
 data/
+
+# Logs (keep .gitkeep sentinel)
+logs/*.log
+
+# Eval results (keep sample)
+eval/results/*.json
+!eval/results/sample_run.json
+
+# macOS
+.DS_Store

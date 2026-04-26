@@ -1,0 +1,76 @@
+flowchart TD
+    User["👤 User\n(Chat Input)"]
+
+    subgraph UI["Streamlit UI (app.py)"]
+        TabAgent["🤖 PawPal Agent Tab"]
+        TabOther["My Pets / Schedule / Today's Schedule"]
+        TraceView["ReasoningTrace Timeline Viewer"]
+    end
+
+    subgraph Guardrails["🛡️ Guardrails (guardrails.py)"]
+        IG["Input Guardrail\n(length, off-topic)"]
+        OG["Output Guardrail\n(hallucination check)"]
+        AG["Action Guardrail\n(destructive confirm)"]
+        RL["Rate Limit Guard\n(max 20 tool calls)"]
+    end
+
+    subgraph AgentCore["Agent Core Loop (core.py)"]
+        Plan["1️⃣  Plan\n&lt;plan&gt; block"]
+        Act["2️⃣  Act\nTool-use loop"]
+        Verify["3️⃣  Verify\nSeparate Claude call"]
+        Replan["4️⃣  Replan\n(if confidence &lt; 0.7)"]
+    end
+
+    subgraph ToolLayer["Tool Layer (tools.py)"]
+        T1["list_pets"]
+        T2["add_pet"]
+        T3["list_tasks"]
+        T4["add_task"]
+        T5["complete_task"]
+        T6["check_conflicts"]
+        T7["reschedule_task"]
+        T8["delete_pet"]
+    end
+
+    subgraph DomainCore["Domain Core (pawpal_system.py)"]
+        Owner["Owner"]
+        Pet["Pet"]
+        Task["Task"]
+        Scheduler["Scheduler"]
+    end
+
+    subgraph Persist["Persistence (storage.py)"]
+        JSON["data/pawpal_data.json"]
+    end
+
+    subgraph Observability["Observability"]
+        Log["logs/agent.log"]
+        Trace["ReasoningTrace\n(trace.py)"]
+    end
+
+    User -->|"message"| TabAgent
+    TabAgent --> IG
+    IG -->|"valid"| Plan
+    IG -->|"rejected"| TabAgent
+
+    Plan --> Act
+    Act -->|"tool_use"| AG
+    AG -->|"approved"| ToolLayer
+    AG -->|"blocked"| Act
+    RL --> Act
+
+    ToolLayer --> DomainCore
+    DomainCore --> Persist
+    ToolLayer --> Trace
+    ToolLayer --> Log
+
+    Act -->|"end_turn"| Verify
+    Verify -->|"success=true"| OG
+    Verify -->|"success=false"| Replan
+    Replan --> Plan
+
+    OG -->|"clean"| TabAgent
+    TabAgent --> TraceView
+    Trace --> TraceView
+
+    TabOther --> DomainCore
