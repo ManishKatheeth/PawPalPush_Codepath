@@ -7,6 +7,9 @@ import uuid
 from datetime import date, time
 
 import streamlit as st
+from dotenv import load_dotenv
+
+load_dotenv()  # loads ANTHROPIC_API_KEY from .env if present
 
 from pawpal_system import Owner, Pet, Scheduler, Task
 import storage
@@ -497,7 +500,9 @@ for col, val, lbl in zip(
 # ---------------------------------------------------------------------------
 # Tabs
 # ---------------------------------------------------------------------------
-tab_pets, tab_schedule, tab_today = st.tabs(["My Pets", "Schedule Tasks", "Today's Schedule"])
+tab_pets, tab_schedule, tab_today, tab_agent = st.tabs(
+    ["My Pets", "Schedule Tasks", "Today's Schedule", "🤖 PawPal Agent"]
+)
 
 
 # ===========================================================================
@@ -708,3 +713,147 @@ with tab_today:
                 task.completed = False
                 storage.save(owner)
                 st.rerun()
+
+
+# ===========================================================================
+# TAB 4 — PawPal Agent
+# ===========================================================================
+with tab_agent:
+    st.markdown('<div class="pp-section-title">🤖 PawPal Agent</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<p style="color:#6B5B4E;font-size:0.9rem;margin-bottom:1rem;">'
+        "Chat with your AI pet care assistant. Ask me to add pets, schedule tasks, "
+        "check conflicts, or manage your care calendar in plain English."
+        "</p>",
+        unsafe_allow_html=True,
+    )
+
+    # --- Session state for chat history and metrics ---
+    if "agent_messages" not in st.session_state:
+        st.session_state.agent_messages = []
+    if "agent_total_tool_calls" not in st.session_state:
+        st.session_state.agent_total_tool_calls = 0
+    if "agent_confidence_scores" not in st.session_state:
+        st.session_state.agent_confidence_scores = []
+
+    # --- Sidebar metrics (agent section) ---
+    with st.sidebar:
+        st.markdown(
+            '<hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:0.75rem 0;">',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f'<div class="pp-sidebar-stat">'
+            f'<div class="pp-sidebar-stat-lbl">Agent Tool Calls</div>'
+            f'<div class="pp-sidebar-stat-val">{st.session_state.agent_total_tool_calls}</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+        scores = st.session_state.agent_confidence_scores
+        avg_conf = f"{sum(scores)/len(scores):.2f}" if scores else "—"
+        st.markdown(
+            f'<div class="pp-sidebar-stat">'
+            f'<div class="pp-sidebar-stat-lbl">Avg Confidence</div>'
+            f'<div class="pp-sidebar-stat-val">{avg_conf}</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+    # --- Clear conversation button ---
+    col_clear, _ = st.columns([1, 5])
+    with col_clear:
+        if st.button("Clear conversation", key="clear_chat"):
+            st.session_state.agent_messages = []
+            st.session_state.agent_total_tool_calls = 0
+            st.session_state.agent_confidence_scores = []
+            st.rerun()
+
+    # --- Render chat history ---
+    for msg in st.session_state.agent_messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+            if msg["role"] == "assistant" and "trace" in msg:
+                _render_trace(msg["trace"])
+
+    # --- Chat input ---
+    user_input = st.chat_input("Ask PawPal+ anything about your pets…")
+
+    if user_input:
+        # Append and render user message
+        st.session_state.agent_messages.append({"role": "user", "content": user_input})
+        with st.chat_message("user"):
+            st.markdown(user_input)
+
+        # Run agent
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking…"):
+                try:
+                    from agent.core import run_agent
+                    trace = run_agent(user_input, owner)
+                    storage.save(owner)
+                except Exception as exc:
+                    trace = None
+                    error_msg = f"Agent error: {exc}"
+                    st.error(error_msg)
+                    st.session_state.agent_messages.append(
+                        {"role": "assistant", "content": error_msg}
+                    )
+
+            if trace is not None:
+                st.markdown(trace.final_response)
+                _render_trace(trace)
+
+                # Update metrics
+                st.session_state.agent_total_tool_calls += trace.total_tool_calls
+                conf = trace.verifier_result.get("confidence")
+                if conf is not None:
+                    st.session_state.agent_confidence_scores.append(float(conf))
+
+                # Persist message with trace for re-render on rerun
+                st.session_state.agent_messages.append(
+                    {"role": "assistant", "content": trace.final_response, "trace": trace}
+                )
+                # Refresh owner ref so sidebar stats update
+                st.session_state.owner = owner
+                st.rerun()
+
+
+def _render_trace(trace) -> None:
+    """Render a ReasoningTrace as a collapsible timeline inside an expander."""
+    if not trace or not trace.steps:
+        return
+
+    conf = trace.verifier_result.get("confidence", 0)
+    success = trace.verifier_result.get("success", False)
+    summary = (
+        f"Reasoning trace — {trace.total_tool_calls} tool call(s), "
+        f"{trace.iterations} iteration(s), "
+        f"confidence {conf:.2f}, "
+        f"{'✅ verified' if success else '⚠️ issues flagged'}"
+    )
+
+    with st.expander(summary, expanded=False):
+        for step in trace.steps:
+            icon = trace.phase_icon(step.phase)
+            phase_label = step.phase.replace("_", " ").title()
+            st.markdown(
+                f"**{icon} Step {step.step_num} — {phase_label}** "
+                f"<span style='font-size:0.75rem;color:#9C8A7B;'>({step.duration_ms:.0f} ms)</span>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f"<div style='margin-left:1.5rem;font-size:0.875rem;color:#1C1C1C;"
+                f"background:#F8F5F0;border-radius:6px;padding:0.5rem 0.75rem;"
+                f"border-left:3px solid #E07B39;margin-bottom:0.5rem;'>"
+                f"{step.content}</div>",
+                unsafe_allow_html=True,
+            )
+            if step.raw:
+                with st.expander(f"Show raw data — step {step.step_num}", expanded=False):
+                    st.json(step.raw)
+
+        st.markdown(
+            f"<div style='font-size:0.75rem;color:#9C8A7B;margin-top:0.5rem;'>"
+            f"Total: {trace.total_duration_ms:.0f} ms end-to-end</div>",
+            unsafe_allow_html=True,
+        )
