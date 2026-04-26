@@ -506,6 +506,8 @@ def _render_trace(trace) -> None:
     if not trace or not trace.steps:
         return
 
+    import json as _json
+
     conf = trace.verifier_result.get("confidence", 0)
     success = trace.verifier_result.get("success", False)
     summary = (
@@ -531,9 +533,10 @@ def _render_trace(trace) -> None:
                 f"{step.content}</div>",
                 unsafe_allow_html=True,
             )
+            # Streamlit forbids nested expanders — use a checkbox toggle instead
             if step.raw:
-                with st.expander(f"Show raw data — step {step.step_num}", expanded=False):
-                    st.json(step.raw)
+                if st.checkbox(f"Show raw — step {step.step_num}", key=f"raw_{id(trace)}_{step.step_num}"):
+                    st.code(_json.dumps(step.raw, indent=2, default=str), language="json")
 
         st.markdown(
             f"<div style='font-size:0.75rem;color:#9C8A7B;margin-top:0.5rem;'>"
@@ -818,7 +821,10 @@ with tab_agent:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
             if msg["role"] == "assistant" and "trace" in msg:
-                _render_trace(msg["trace"])
+                try:
+                    _render_trace(msg["trace"])
+                except Exception:
+                    pass  # silently skip trace render on history re-display
 
     # --- Chat input ---
     user_input = st.chat_input("Ask PawPal+ anything about your pets…")
@@ -845,8 +851,11 @@ with tab_agent:
                     )
 
             if trace is not None:
-                st.markdown(trace.final_response)
-                _render_trace(trace)
+                try:
+                    st.markdown(trace.final_response)
+                    _render_trace(trace)
+                except Exception as render_exc:
+                    st.warning(f"Could not render reasoning trace: {render_exc}")
 
                 # Update metrics
                 st.session_state.agent_total_tool_calls += trace.total_tool_calls
