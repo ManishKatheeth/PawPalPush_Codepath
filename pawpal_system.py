@@ -141,6 +141,19 @@ class Owner:
         """
         return self.pets
 
+    def remove_pet(self, pet_id: str) -> bool:
+        """Remove a pet and all its tasks from the owner's list.
+
+        Args:
+            pet_id: The unique identifier of the pet to remove.
+
+        Returns:
+            True if a pet was removed, False if no matching pet was found.
+        """
+        original = len(self.pets)
+        self.pets = [p for p in self.pets if p.pet_id != pet_id]
+        return len(self.pets) < original
+
     def get_all_tasks(self) -> list[tuple[Pet, Task]]:
         """Aggregate every task across all pets.
 

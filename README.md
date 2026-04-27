@@ -1,6 +1,6 @@
-# PawPal+ — Agentic Pet Care Scheduling
+# PawPal+ — Agentic Pet Care Management System
 
-> Your AI-powered pet care assistant that understands plain English.
+> A dual-role AI-powered pet care assistant built with Python, Streamlit, and the Anthropic Claude API.
 
 ![Tests](https://img.shields.io/badge/tests-73%20passing-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
@@ -8,9 +8,19 @@
 
 ---
 
-## Demo
+## 📹 Loom Walkthrough *(required)*
 
-> 📹 [Watch demo](https://loom.com/...) — TODO: record after build
+**[▶ Watch the 5-minute end-to-end demo](https://www.loom.com/share/YOUR_LOOM_LINK_HERE)**
+
+> Replace `YOUR_LOOM_LINK_HERE` with your actual Loom share URL after recording.
+
+---
+
+## 💼 Portfolio Reflection
+
+> Building PawPal+ showed me that the hardest part of agentic AI isn't the code — it's the **identity design**. Deciding what each agent *is*, what it knows, and what it refuses to do requires the same thinking as product design, not just engineering. I learned to treat system prompts as product specifications, tool schemas as API contracts, and the verify-replan loop as a quality gate. The most important lesson came from a bug: when a tool returned `success: False` as a confirmation gate, Claude told users it "didn't have the capability" — not because of missing code, but because the model misread a design pattern as a failure signal. Fixing that taught me that in agentic systems, **model psychology is part of your architecture**. This project shows that I approach AI engineering the way a product engineer would: from the user's experience backward to the model's behavior, never the other way around.
+
+---
 
 ---
 

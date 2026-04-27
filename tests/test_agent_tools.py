@@ -360,26 +360,25 @@ class TestRescheduleTask:
 # ---------------------------------------------------------------------------
 
 class TestDeletePet:
-    def test_requires_confirmation(self) -> None:
+    def test_deletes_pet(self) -> None:
         owner = _make_owner()
         ex = _make_executor(owner)
         result = ex.execute("delete_pet", {"pet_name": "Rex"})
-        assert result["success"] is False
-        assert result.get("requires_confirmation") is True
-        assert len(owner.get_pets()) == 2  # not deleted
-
-    def test_deletes_with_confirmation(self) -> None:
-        owner = _make_owner()
-        ex = _make_executor(owner)
-        result = ex.execute("delete_pet", {"pet_name": "Rex", "confirmed": True})
         assert result["success"] is True
+        assert result["deleted_pet"] == "Rex"
         assert len(owner.get_pets()) == 1
         assert owner.get_pets()[0].name == "Mochi"
+
+    def test_reports_tasks_removed(self) -> None:
+        owner = _make_owner()
+        ex = _make_executor(owner)
+        result = ex.execute("delete_pet", {"pet_name": "Rex"})
+        assert "tasks_removed" in result
 
     def test_unknown_pet_returns_error(self) -> None:
         owner = _make_owner()
         ex = _make_executor(owner)
-        result = ex.execute("delete_pet", {"pet_name": "Ghost", "confirmed": True})
+        result = ex.execute("delete_pet", {"pet_name": "Ghost"})
         assert result["success"] is False
 
     def test_unknown_tool_name(self) -> None:

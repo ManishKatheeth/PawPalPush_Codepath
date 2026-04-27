@@ -33,8 +33,13 @@ from .guardrails import (
     check_output,
     check_tool_call_count,
 )
-from .prompts import PLANNER_SYSTEM_PROMPT, REPLAN_SYSTEM_PROMPT, VERIFIER_SYSTEM_PROMPT
-from .tools import TOOL_SCHEMAS, ToolExecutor
+from .prompts import (
+    ADMIN_PLANNER_SYSTEM_PROMPT,
+    CUSTOMER_PLANNER_SYSTEM_PROMPT,
+    REPLAN_SYSTEM_PROMPT,
+    VERIFIER_SYSTEM_PROMPT,
+)
+from .tools import get_tool_schemas, ToolExecutor
 from .trace import ReasoningTrace
 
 logger = logging.getLogger(__name__)
@@ -57,6 +62,7 @@ def run_agent(
     owner: Owner,
     conversation_history: list[dict[str, Any]] | None = None,
     persist: bool = True,
+    user_role: str = "owner",
 ) -> ReasoningTrace:
     """Run the full plan-act-verify-replan loop for one user turn.
 
@@ -67,11 +73,18 @@ def run_agent(
             (alternating user/assistant) to give Claude context across turns.
         persist: If False, tool mutations are kept in-memory only (used by
             the eval harness to avoid polluting the production data file).
+        user_role: ``"owner"`` for the wellness companion persona,
+            ``"admin"`` for the operations manager persona.
 
     Returns:
         A fully populated ReasoningTrace that the UI renders as a timeline.
     """
     trace = ReasoningTrace(request=user_message)
+    active_tools = get_tool_schemas(user_role)
+    planner_prompt = (
+        CUSTOMER_PLANNER_SYSTEM_PROMPT if user_role == "owner"
+        else ADMIN_PLANNER_SYSTEM_PROMPT
+    )
 
     # --- Input guardrail ---
     try:
@@ -101,9 +114,9 @@ def run_agent(
 
         # Build message list: prior history (up to last 10 turns) + current message
         history = (conversation_history or [])[-10:]
-        state_ctx = _build_state_context(owner)
+        state_ctx = _build_state_context(owner, user_role=user_role)
         if iteration == 0:
-            system_prompt = PLANNER_SYSTEM_PROMPT.format(state_context=state_ctx)
+            system_prompt = planner_prompt.format(state_context=state_ctx)
             messages: list[dict[str, Any]] = history + [{"role": "user", "content": user_message}]
         else:
             # Replan: inject verifier issues into the system prompt
@@ -120,6 +133,7 @@ def run_agent(
             system_prompt=system_prompt,
             messages=messages,
             trace=trace,
+            tools=active_tools,
         )
 
         best_response = response_text
@@ -171,6 +185,7 @@ def _act_loop(
     system_prompt: str,
     messages: list[dict[str, Any]],
     trace: ReasoningTrace,
+    tools: list[dict[str, Any]] | None = None,
 ) -> tuple[str, int, ReasoningTrace]:
     """Run the tool-use loop until the model reaches end_turn.
 
@@ -186,7 +201,7 @@ def _act_loop(
             model=config.MODEL,
             max_tokens=config.MAX_TOKENS,
             system=system_prompt,
-            tools=TOOL_SCHEMAS,  # type: ignore[arg-type]
+            tools=tools or [],  # type: ignore[arg-type]
             messages=messages,
         )
         duration_ms = (time.monotonic() - t0) * 1000
@@ -381,7 +396,7 @@ def _summarise_result(result: dict[str, Any]) -> str:
     return "✗ " + result.get("error", "error")
 
 
-def _build_state_context(owner: Owner) -> str:
+def _build_state_context(owner: Owner, user_role: str = "owner") -> str:
     """Snapshot the current owner state as a plain-text summary for the system prompt.
 
     Injecting this at the start of every call means Claude always knows which
@@ -389,8 +404,11 @@ def _build_state_context(owner: Owner) -> str:
     """
     from datetime import date as _date
     today = _date.today().isoformat()
-    lines = [f"Owner: {owner.name}  |  Today: {today}"]
     pets = owner.get_pets()
+    pet_count = len(pets)
+
+    lines = [f"Owner: {owner.name}  |  Today: {today}  |  Pets: {pet_count}"]
+
     if not pets:
         lines.append("No pets registered yet.")
     else:
@@ -404,4 +422,24 @@ def _build_state_context(owner: Owner) -> str:
                 if tasks else "no tasks"
             )
             lines.append(f"- {pet.name} [{pet.species}] (pet_id={pet.pet_id}): {task_summary}")
+
+    # Append a routing hint so the model knows how to handle pet-specific queries
+    if user_role == "owner":
+        pet_names = [p.name for p in pets]
+        if pet_count == 1:
+            lines.append(
+                f"\n[ROUTING HINT] Owner has 1 pet ({pet_names[0]}). "
+                "All pet-specific queries implicitly refer to this pet — never ask which pet."
+            )
+        elif pet_count > 1:
+            names_str = ", ".join(pet_names)
+            lines.append(
+                f"\n[ROUTING HINT] Owner has {pet_count} pets: {names_str}. "
+                "For pet-specific queries (health, tasks, schedule, routines), "
+                "ask the owner which pet they mean before proceeding. "
+                "For holistic queries (workload, overall summary, conflict check), "
+                "answer across all pets without asking."
+            )
+    # Admin sees everything — no routing hint needed
+
     return "\n".join(lines)

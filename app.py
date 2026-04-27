@@ -27,24 +27,86 @@ st.set_page_config(
 
 
 # ---------------------------------------------------------------------------
-# Design tokens — warm amber / terracotta palette
+# Design tokens — role-aware palettes
 # ---------------------------------------------------------------------------
-C_BG        = "#FBF8F3"   # warm cream canvas
-C_SURFACE   = "#FFFFFF"   # card surface
-C_BORDER    = "#E8DDD0"   # warm border
-C_ACCENT    = "#E07B39"   # burnt orange accent
-C_ACCENT2   = "#C4612A"   # deeper accent
-C_DARK      = "#1C1C1C"   # near-black text
-C_MID       = "#6B5B4E"   # warm mid-tone
-C_MUTED     = "#9C8A7B"   # muted label
-C_GREEN     = "#3D7A4A"   # done / success
-C_GREEN_BG  = "#EBF5EE"
-C_YELLOW    = "#8A6B00"   # pending
-C_YELLOW_BG = "#FDF6DC"
-C_RED       = "#9B2C2C"   # conflict
-C_RED_BG    = "#FDECEA"
-C_BLUE      = "#1D5FA3"   # once
-C_BLUE_BG   = "#E3EEF9"
+_role_css = st.session_state.get("user_role", "owner")
+
+if _role_css == "admin":
+    # ── Cool navy / blue palette ──────────────────────────────────────────
+    C_BG        = "#F0F4FF"   # cool blue-tinted canvas
+    C_SURFACE   = "#FFFFFF"
+    C_BORDER    = "#C7D7F5"   # blue-grey border
+    C_ACCENT    = "#2563EB"   # strong blue
+    C_ACCENT2   = "#1D4ED8"   # deeper blue
+    C_DARK      = "#0F172A"   # near-black navy
+    C_MID       = "#374151"   # slate grey
+    C_MUTED     = "#6B7280"
+    C_GREEN     = "#166534"
+    C_GREEN_BG  = "#DCFCE7"
+    C_YELLOW    = "#92400E"
+    C_YELLOW_BG = "#FEF3C7"
+    C_RED       = "#991B1B"
+    C_RED_BG    = "#FEE2E2"
+    C_BLUE      = "#1D4ED8"
+    C_BLUE_BG   = "#DBEAFE"
+    _SIDEBAR_BG   = "linear-gradient(180deg, #0F172A 0%, #1E293B 100%)"
+    _SIDEBAR_TEXT = "#E2E8F0"
+    _SIDEBAR_MID  = "#94A3B8"
+    _SIDEBAR_FOOT = "#475569"
+    _HERO_BG      = "linear-gradient(135deg, #0F172A 0%, #1E293B 55%, #1E3A5F 100%)"
+    _HERO_ICON    = "🔧"
+    _HERO_SUB_C   = "#93C5FD"
+    _HERO_STAT_C  = "#60A5FA"
+    _BTN_SHADOW   = "rgba(37,99,235,0.28)"
+    _BTN_SHADOW2  = "rgba(37,99,235,0.40)"
+    _CARD_HOVER   = "rgba(37,99,235,0.10)"
+    _FOCUS_RING   = "rgba(37,99,235,0.15)"
+    _PILL_ACC_BG  = "#DBEAFE"
+    _PROG_TRACK   = "#C7D7F5"
+    _PROG_FILL    = "linear-gradient(90deg,#2563EB,#60A5FA)"
+    _PROG_DOT_OFF = "#9BB5E8"
+    _TRACE_BG     = "#F0F4FF"
+    _TRACE_BORDER = "#2563EB"
+    _TRACE_MUTED  = "#6B7280"
+    _PROGRESS_EMOJI = "📋"
+else:
+    # ── Warm amber / terracotta palette (default) ─────────────────────────
+    C_BG        = "#FBF8F3"
+    C_SURFACE   = "#FFFFFF"
+    C_BORDER    = "#E8DDD0"
+    C_ACCENT    = "#E07B39"
+    C_ACCENT2   = "#C4612A"
+    C_DARK      = "#1C1C1C"
+    C_MID       = "#6B5B4E"
+    C_MUTED     = "#9C8A7B"
+    C_GREEN     = "#3D7A4A"
+    C_GREEN_BG  = "#EBF5EE"
+    C_YELLOW    = "#8A6B00"
+    C_YELLOW_BG = "#FDF6DC"
+    C_RED       = "#9B2C2C"
+    C_RED_BG    = "#FDECEA"
+    C_BLUE      = "#1D5FA3"
+    C_BLUE_BG   = "#E3EEF9"
+    _SIDEBAR_BG   = "linear-gradient(180deg, #2D1F14 0%, #1C1208 100%)"
+    _SIDEBAR_TEXT = "#F5EDE4"
+    _SIDEBAR_MID  = "#C4A882"
+    _SIDEBAR_FOOT = "#7A6355"
+    _HERO_BG      = "linear-gradient(135deg, #2D1F14 0%, #3D2B1A 60%, #4A3420 100%)"
+    _HERO_ICON    = "🐾"
+    _HERO_SUB_C   = "#C4A882"
+    _HERO_STAT_C  = "#E07B39"
+    _BTN_SHADOW   = "rgba(224,123,57,0.25)"
+    _BTN_SHADOW2  = "rgba(224,123,57,0.35)"
+    _CARD_HOVER   = "rgba(224,123,57,0.12)"
+    _FOCUS_RING   = "rgba(224,123,57,0.15)"
+    _PILL_ACC_BG  = "#FEF0E6"
+    _PROG_TRACK   = "#E8DDD0"
+    _PROG_FILL    = "linear-gradient(90deg,#E07B39,#F09050)"
+    _PROG_DOT_OFF = "#C9B9A8"
+    _TRACE_BG     = "#F8F5F0"
+    _TRACE_BORDER = "#E07B39"
+    _TRACE_MUTED  = "#9C8A7B"
+    _PROGRESS_EMOJI = "🐾"
 
 
 # ---------------------------------------------------------------------------
@@ -70,11 +132,30 @@ html, body, [class*="css"] {{
 
 /* ── Sidebar ── */
 [data-testid="stSidebar"] {{
-    background: linear-gradient(180deg, #2D1F14 0%, #1C1208 100%) !important;
+    background: {_SIDEBAR_BG} !important;
     border-right: none !important;
 }}
-[data-testid="stSidebar"] * {{ color: #F5EDE4 !important; }}
-[data-testid="stSidebar"] .stMarkdown p {{ color: #C4A882 !important; font-size: 0.78rem; }}
+[data-testid="stSidebar"] * {{ color: {_SIDEBAR_TEXT} !important; }}
+[data-testid="stSidebar"] .stMarkdown p {{ color: {_SIDEBAR_MID} !important; font-size: 0.78rem; }}
+
+/* ── Ghost / secondary action buttons ── */
+button[kind="secondary"] {{
+    background: transparent !important;
+    color: {C_MID} !important;
+    border: 1.5px solid {C_BORDER} !important;
+    box-shadow: none !important;
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    padding: 0.3rem 0.6rem !important;
+    letter-spacing: 0 !important;
+}}
+button[kind="secondary"]:hover {{
+    background: {C_BORDER} !important;
+    color: {C_DARK} !important;
+    transform: none !important;
+    box-shadow: none !important;
+}}
+button[kind="secondary"]:active {{ transform: none !important; }}
 
 /* ── Tabs ── */
 [data-testid="stTabs"] button {{
@@ -97,6 +178,10 @@ html, body, [class*="css"] {{
     border-bottom: 1px solid {C_BORDER};
     gap: 0;
 }}
+/* Override Streamlit's default BaseWeb tab-highlight (causes double underline) */
+[data-baseweb="tab-highlight"] {{
+    background-color: {C_ACCENT} !important;
+}}
 
 /* ── Buttons ── */
 .stButton > button {{
@@ -109,12 +194,12 @@ html, body, [class*="css"] {{
     letter-spacing: 0.01em !important;
     padding: 0.55rem 1.4rem !important;
     transition: background 0.2s, transform 0.1s !important;
-    box-shadow: 0 2px 8px rgba(224,123,57,0.25) !important;
+    box-shadow: 0 2px 8px {_BTN_SHADOW} !important;
 }}
 .stButton > button:hover {{
     background: {C_ACCENT2} !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(224,123,57,0.35) !important;
+    box-shadow: 0 4px 12px {_BTN_SHADOW2} !important;
 }}
 .stButton > button:active {{ transform: translateY(0) !important; }}
 
@@ -128,7 +213,7 @@ html, body, [class*="css"] {{
 }}
 [data-testid="stTextInput"] input:focus {{
     border-color: {C_ACCENT} !important;
-    box-shadow: 0 0 0 3px rgba(224,123,57,0.15) !important;
+    box-shadow: 0 0 0 3px {_FOCUS_RING} !important;
     outline: none !important;
 }}
 [data-baseweb="select"] {{
@@ -145,7 +230,7 @@ html, body, [class*="css"] {{
 *:focus {{ outline: none !important; }}
 input:focus, select:focus {{
     border-color: {C_ACCENT} !important;
-    box-shadow: 0 0 0 3px rgba(224,123,57,0.15) !important;
+    box-shadow: 0 0 0 3px {_FOCUS_RING} !important;
     outline: none !important;
 }}
 
@@ -214,7 +299,7 @@ input:focus, select:focus {{
 
 /* ── Custom components ── */
 .pp-hero {{
-    background: linear-gradient(135deg, #2D1F14 0%, #3D2B1A 60%, #4A3420 100%);
+    background: {_HERO_BG};
     border-radius: 18px;
     padding: 2rem 2.5rem;
     margin-bottom: 1.75rem;
@@ -222,7 +307,7 @@ input:focus, select:focus {{
     overflow: hidden;
 }}
 .pp-hero::after {{
-    content: "🐾";
+    content: "{_HERO_ICON}";
     position: absolute;
     right: 2rem; top: 50%;
     transform: translateY(-50%);
@@ -239,7 +324,7 @@ input:focus, select:focus {{
 }}
 .pp-hero-sub {{
     font-size: 0.9rem;
-    color: #C4A882;
+    color: {_HERO_SUB_C};
     margin: 0;
 }}
 .pp-hero-stat {{
@@ -252,12 +337,12 @@ input:focus, select:focus {{
 .pp-hero-stat-val {{
     font-size: 1.6rem;
     font-weight: 700;
-    color: {C_ACCENT};
+    color: {_HERO_STAT_C};
     line-height: 1;
 }}
 .pp-hero-stat-lbl {{
     font-size: 0.68rem;
-    color: #C4A882;
+    color: {_HERO_SUB_C};
     text-transform: uppercase;
     letter-spacing: 0.07em;
     margin-top: 0.2rem;
@@ -294,7 +379,7 @@ input:focus, select:focus {{
     transition: box-shadow 0.2s, transform 0.2s;
 }}
 .pp-pet-card:hover {{
-    box-shadow: 0 6px 24px rgba(224,123,57,0.12);
+    box-shadow: 0 6px 24px {_CARD_HOVER};
     transform: translateY(-2px);
 }}
 .pp-pet-card::before {{
@@ -317,7 +402,7 @@ input:focus, select:focus {{
     padding: 0.2rem 0.7rem;
     margin-right: 0.3rem;
 }}
-.pill-orange  {{ background: #FEF0E6; color: {C_ACCENT}; }}
+.pill-orange  {{ background: {_PILL_ACC_BG}; color: {C_ACCENT}; }}
 .pill-green   {{ background: {C_GREEN_BG}; color: {C_GREEN}; }}
 .pill-yellow  {{ background: {C_YELLOW_BG}; color: {C_YELLOW}; }}
 .pill-blue    {{ background: {C_BLUE_BG}; color: {C_BLUE}; }}
@@ -389,7 +474,7 @@ input:focus, select:focus {{
     padding: 0.7rem 1rem;
     margin-bottom: 0.5rem;
 }}
-.pp-sidebar-stat-lbl {{ font-size: 0.65rem; color: #C4A882; text-transform: uppercase; letter-spacing: 0.08em; }}
+.pp-sidebar-stat-lbl {{ font-size: 0.65rem; color: {_SIDEBAR_MID}; text-transform: uppercase; letter-spacing: 0.08em; }}
 .pp-sidebar-stat-val {{ font-size: 1.1rem; font-weight: 700; color: #FFFFFF; margin-top: 0.1rem; }}
 </style>
 """, unsafe_allow_html=True)
@@ -399,13 +484,13 @@ input:focus, select:focus {{
 # Constants
 # ---------------------------------------------------------------------------
 PAW_SVG = (
-    '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 100 100">'
-    '<ellipse cx="28" cy="20" rx="9" ry="11" fill="#E07B39"/>'
-    '<ellipse cx="50" cy="14" rx="9" ry="11" fill="#E07B39"/>'
-    '<ellipse cx="72" cy="20" rx="9" ry="11" fill="#E07B39"/>'
-    '<ellipse cx="16" cy="42" rx="8" ry="10" fill="#E07B39"/>'
-    '<ellipse cx="50" cy="64" rx="28" ry="26" fill="#E07B39"/>'
-    '</svg>'
+    f'<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 100 100">'
+    f'<ellipse cx="28" cy="20" rx="9" ry="11" fill="{C_ACCENT}"/>'
+    f'<ellipse cx="50" cy="14" rx="9" ry="11" fill="{C_ACCENT}"/>'
+    f'<ellipse cx="72" cy="20" rx="9" ry="11" fill="{C_ACCENT}"/>'
+    f'<ellipse cx="16" cy="42" rx="8" ry="10" fill="{C_ACCENT}"/>'
+    f'<ellipse cx="50" cy="64" rx="28" ry="26" fill="{C_ACCENT}"/>'
+    f'</svg>'
 )
 
 SPECIES_EMOJI = {
@@ -421,12 +506,89 @@ FREQ_PILL = {
 
 
 # ---------------------------------------------------------------------------
+# Login / Role selection — shown before any app content
+# ---------------------------------------------------------------------------
+if "user_role" not in st.session_state:
+    st.markdown(
+        """
+        <style>
+        .pp-login-wrap {
+            max-width: 560px;
+            margin: 4rem auto 0;
+            text-align: center;
+        }
+        .pp-login-logo {
+            font-family: 'Lora', Georgia, serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #2D1F14;
+            margin-bottom: 0.15rem;
+        }
+        .pp-login-logo span { color: #E07B39; }
+        .pp-login-sub {
+            font-size: 0.95rem;
+            color: #9B8B7E;
+            margin-bottom: 2rem;
+        }
+        .pp-role-card {
+            border: 2px solid #E8DDD0;
+            border-radius: 14px;
+            padding: 1.25rem 1rem;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fff;
+            text-align: left;
+        }
+        .pp-role-card:hover { border-color: #E07B39; box-shadow: 0 2px 12px rgba(224,123,57,0.15); }
+        .pp-role-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+        .pp-role-title { font-weight: 700; font-size: 1rem; color: #2D1F14; margin-bottom: 0.2rem; }
+        .pp-role-desc  { font-size: 0.8rem; color: #6B5B4E; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        '<div class="pp-login-wrap">'
+        '<div class="pp-login-logo">PawPal<span>+</span></div>'
+        '<div class="pp-login-sub">Your intelligent pet care companion</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    _, center_col, _ = st.columns([1, 2, 1])
+    with center_col:
+        with st.form("login_form"):
+            login_name = st.text_input("Your name", placeholder="e.g. Alice, Dr. Kim…", label_visibility="visible")
+            st.markdown("<div style='margin:0.75rem 0 0.4rem;font-size:0.82rem;font-weight:600;color:#6B5B4E;'>I am a…</div>", unsafe_allow_html=True)
+            role_choice = st.radio(
+                "Role",
+                options=["🐾  Pet Owner", "🔧  Admin / Vet"],
+                label_visibility="collapsed",
+            )
+            submitted = st.form_submit_button("Get Started →", use_container_width=True)
+
+        if submitted:
+            name = login_name.strip() or "Friend"
+            role = "owner" if "Pet Owner" in role_choice else "admin"
+            st.session_state.user_role = role
+            st.session_state.user_name = name
+            # Clear any stale agent history from a previous session
+            for _k in ("agent_messages", "agent_total_tool_calls", "agent_confidence_scores", "owner"):
+                st.session_state.pop(_k, None)
+            st.rerun()
+
+    st.stop()
+
+# ---------------------------------------------------------------------------
 # Session state
 # ---------------------------------------------------------------------------
 if "owner" not in st.session_state:
     st.session_state.owner = storage.load()
 
 owner: Owner = st.session_state.owner
+# Reflect the logged-in name in the owner object (in-memory only)
+owner.name = st.session_state.get("user_name", owner.name)
 
 
 # ---------------------------------------------------------------------------
@@ -470,8 +632,23 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
+    # Role badge + switch button
+    _role_label = "🐾 Pet Owner" if st.session_state.user_role == "owner" else "🔧 Admin / Vet"
+    st.markdown(
+        f'<div class="pp-sidebar-stat">'
+        f'<div class="pp-sidebar-stat-lbl">Logged in as</div>'
+        f'<div class="pp-sidebar-stat-val" style="font-size:0.85rem;">{_role_label}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+    if st.button("Switch Role", key="switch_role", use_container_width=True):
+        for _k in ("user_role", "user_name", "agent_messages", "agent_total_tool_calls",
+                   "agent_confidence_scores", "owner"):
+            st.session_state.pop(_k, None)
+        st.rerun()
+
     st.markdown('<hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:1.25rem 0;">', unsafe_allow_html=True)
-    st.markdown('<p style="font-size:0.72rem;color:#7A6355;text-align:center;">PawPal+ v1.0 — Pet Care Made Easy</p>', unsafe_allow_html=True)
+    st.markdown(f'<p style="font-size:0.72rem;color:{_SIDEBAR_FOOT};text-align:center;">PawPal+ v1.0 — Pet Care Made Easy</p>', unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------------------
@@ -479,10 +656,20 @@ with st.sidebar:
 # ---------------------------------------------------------------------------
 hero_cols = st.columns([3, 1, 1, 1])
 with hero_cols[0]:
+    _hero_greeting = (
+        f"Good day, {owner.name}!"
+        if st.session_state.user_role == "owner"
+        else f"Welcome back, {owner.name}."
+    )
+    _hero_sub = (
+        "Here's your pet care overview for today."
+        if st.session_state.user_role == "owner"
+        else "Admin dashboard — full care operations at a glance."
+    )
     st.markdown(
         f'<div class="pp-hero">'
-        f'<div class="pp-hero-title">Good day, {owner.name}!</div>'
-        f'<div class="pp-hero-sub">Here\'s your pet care overview for today.</div>'
+        f'<div class="pp-hero-title">{_hero_greeting}</div>'
+        f'<div class="pp-hero-sub">{_hero_sub}</div>'
         f'</div>',
         unsafe_allow_html=True,
     )
@@ -522,13 +709,13 @@ def _render_trace(trace) -> None:
             phase_label = step.phase.replace("_", " ").title()
             st.markdown(
                 f"**{icon} Step {step.step_num} — {phase_label}** "
-                f"<span style='font-size:0.75rem;color:#9C8A7B;'>({step.duration_ms:.0f} ms)</span>",
+                f"<span style='font-size:0.75rem;color:{_TRACE_MUTED};'>({step.duration_ms:.0f} ms)</span>",
                 unsafe_allow_html=True,
             )
             st.markdown(
-                f"<div style='margin-left:1.5rem;font-size:0.875rem;color:#1C1C1C;"
-                f"background:#F8F5F0;border-radius:6px;padding:0.5rem 0.75rem;"
-                f"border-left:3px solid #E07B39;margin-bottom:0.5rem;'>"
+                f"<div style='margin-left:1.5rem;font-size:0.875rem;color:{C_DARK};"
+                f"background:{_TRACE_BG};border-radius:6px;padding:0.5rem 0.75rem;"
+                f"border-left:3px solid {_TRACE_BORDER};margin-bottom:0.5rem;'>"
                 f"{step.content}</div>",
                 unsafe_allow_html=True,
             )
@@ -538,26 +725,112 @@ def _render_trace(trace) -> None:
                     st.code(_json.dumps(step.raw, indent=2, default=str), language="json")
 
         st.markdown(
-            f"<div style='font-size:0.75rem;color:#9C8A7B;margin-top:0.5rem;'>"
+            f"<div style='font-size:0.75rem;color:{_TRACE_MUTED};margin-top:0.5rem;'>"
             f"Total: {trace.total_duration_ms:.0f} ms end-to-end</div>",
             unsafe_allow_html=True,
         )
 
 
 # ---------------------------------------------------------------------------
+# Pet CRUD dialogs  (defined here so they can access owner, C_* tokens, etc.)
+# ---------------------------------------------------------------------------
+
+@st.dialog("✏️ Edit Pet")
+def _pet_edit_dialog(pet):
+    sp_list = list(SPECIES_EMOJI.keys())
+    sp_idx  = sp_list.index(pet.species) if pet.species in sp_list else 0
+    emoji   = SPECIES_EMOJI.get(pet.species, "🐾")
+
+    st.markdown(
+        f'<div style="text-align:center;padding:0.25rem 0 1rem;">'
+        f'<div style="font-size:2.5rem;line-height:1;">{emoji}</div>'
+        f'<div style="font-size:1rem;font-weight:700;color:{C_DARK};margin-top:0.3rem;">{pet.name}</div>'
+        f'<div style="font-size:0.72rem;color:{C_MUTED};text-transform:uppercase;'
+        f'letter-spacing:0.06em;">{pet.species}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    new_name    = st.text_input("Name", value=pet.name)
+    new_species = st.selectbox("Species", sp_list, index=sp_idx)
+
+    st.markdown("<div style='margin-top:0.25rem'></div>", unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("Save changes", use_container_width=True):
+            n = new_name.strip()
+            if not n:
+                st.error("Name cannot be empty.")
+            elif (n.lower() != pet.name.lower() and
+                  n.lower() in [p.name.lower() for p in owner.get_pets()]):
+                st.error(f"'{n}' already exists.")
+            else:
+                pet.name    = n
+                pet.species = new_species
+                storage.save(owner)
+                st.rerun()
+    with c2:
+        if st.button("Cancel", type="secondary", use_container_width=True):
+            st.rerun()
+
+
+@st.dialog("Delete Pet")
+def _pet_delete_dialog(pet):
+    n_tasks = len(pet.get_tasks())
+    emoji   = SPECIES_EMOJI.get(pet.species, "🐾")
+
+    st.markdown(
+        f'<div style="text-align:center;padding:0.25rem 0 0.75rem;">'
+        f'<div style="font-size:2.8rem;line-height:1;">{emoji}</div>'
+        f'<div style="font-size:1.05rem;font-weight:700;color:{C_DARK};margin-top:0.3rem;">'
+        f'{pet.name}</div>'
+        f'<div style="font-size:0.72rem;color:{C_MUTED};text-transform:uppercase;'
+        f'letter-spacing:0.06em;">{pet.species}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f'<div style="background:{C_RED_BG};border:1px solid #F5C6C6;border-radius:10px;'
+        f'padding:0.9rem 1rem;margin-bottom:1rem;">'
+        f'<p style="margin:0;font-size:0.85rem;color:{C_RED};font-weight:600;">'
+        f'⚠ This cannot be undone.</p>'
+        f'<p style="margin:0.35rem 0 0;font-size:0.82rem;color:{C_RED};">'
+        + (f"Deleting <strong>{pet.name}</strong> will permanently remove "
+           f"<strong>{n_tasks} task(s)</strong> as well."
+           if n_tasks else
+           f"<strong>{pet.name}</strong> has no tasks — safe to remove.")
+        + f'</p></div>',
+        unsafe_allow_html=True,
+    )
+
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("Yes, delete", use_container_width=True):
+            owner.remove_pet(pet.pet_id)
+            storage.save(owner)
+            st.rerun()
+    with c2:
+        if st.button("Keep pet", type="secondary", use_container_width=True):
+            st.rerun()
+
+
+# ---------------------------------------------------------------------------
 # Tabs
 # ---------------------------------------------------------------------------
-tab_pets, tab_schedule, tab_today, tab_agent = st.tabs(
-    ["My Pets", "Schedule Tasks", "Today's Schedule", "🤖 PawPal Agent"]
+_agent_tab_label = "🐾 PawPal Companion" if st.session_state.user_role == "owner" else "🔧 PawPal Manager"
+tab_agent, tab_pets, tab_schedule, tab_today, tab_calendar = st.tabs(
+    [_agent_tab_label, "My Pets", "Schedule Tasks", "Today's Schedule", "📅 Calendar"]
 )
 
 
 # ===========================================================================
-# TAB 1 — My Pets
+# TAB 1 — My Pets  (full CRUD)
 # ===========================================================================
 with tab_pets:
     st.markdown('<div class="pp-section-title">My Pets</div>', unsafe_allow_html=True)
 
+    # ── Add a new pet ─────────────────────────────────────────────────────
     with st.expander("+ Add a New Pet", expanded=len(all_pets) == 0):
         with st.form("add_pet_form", clear_on_submit=True):
             c1, c2 = st.columns(2)
@@ -585,6 +858,7 @@ with tab_pets:
         )
     else:
         st.markdown(f'<div class="pp-label">Your Pets — {len(pets)}</div>', unsafe_allow_html=True)
+
         cols = st.columns(min(len(pets), 3))
         for idx, pet in enumerate(pets):
             pending = sum(1 for t in pet.get_tasks() if not t.completed)
@@ -592,7 +866,18 @@ with tab_pets:
             total   = len(pet.get_tasks())
             pct     = int(done / total * 100) if total else 0
             emoji   = SPECIES_EMOJI.get(pet.species, "🐾")
+
             with cols[idx % 3]:
+                _card_msg = "All done! 🏆" if pct == 100 else f"{pct}% complete"
+                _prog_bar = (
+                    f'<div style="margin-top:0.75rem;">'
+                    f'<div style="font-size:0.72rem;color:{C_MID};font-weight:600;margin-bottom:0.3rem;">{_card_msg}</div>'
+                    f'<div style="background:{_PROG_TRACK};border-radius:99px;height:8px;">'
+                    f'<div style="background:{_PROG_FILL};width:{pct}%;height:100%;border-radius:99px;'
+                    f'min-width:{"0" if pct == 0 else "8px"};"></div>'
+                    f'</div></div>'
+                ) if total > 0 else ""
+
                 st.markdown(
                     f'<div class="pp-pet-card">'
                     f'<div class="pp-pet-emoji">{emoji}</div>'
@@ -601,11 +886,20 @@ with tab_pets:
                     f'<span class="pill pill-orange">{total} tasks</span>'
                     f'<span class="pill pill-green">{done} done</span>'
                     f'<span class="pill pill-yellow">{pending} pending</span>'
+                    f'{_prog_bar}'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
-                if total > 0:
-                    st.progress(pct / 100, text=f"{pct}% complete")
+
+                b1, b2 = st.columns(2)
+                with b1:
+                    if st.button("✏️ Edit", key=f"btn_edit_{pet.pet_id}",
+                                 type="secondary", use_container_width=True):
+                        _pet_edit_dialog(pet)
+                with b2:
+                    if st.button("🗑 Delete", key=f"btn_del_{pet.pet_id}",
+                                 type="secondary", use_container_width=True):
+                        _pet_delete_dialog(pet)
 
 
 # ===========================================================================
@@ -717,8 +1011,38 @@ with tab_today:
     m3.metric("Pending", total - done_count)
 
     # Overall progress bar
-    if total > 0:
-        st.progress(done_count / total, text=f"{int(done_count/total*100)}% of filtered tasks complete")
+    pct = int(done_count / total * 100) if total > 0 else 0
+    if pct == 0:
+        _prog_msg = f"Let's get started! {_PROGRESS_EMOJI}"
+    elif pct < 50:
+        _prog_msg = f"Good progress! {done_count} of {total} done {_PROGRESS_EMOJI}"
+    elif pct < 100:
+        _prog_msg = f"More than halfway there! {done_count} of {total} done ⭐"
+    else:
+        _prog_msg = "All done! Amazing care today 🏆"
+    _milestone_dots = " ".join(
+        f'<div style="position:absolute;left:{m}%;top:50%;transform:translate(-50%,-50%);'
+        f'width:20px;height:20px;border-radius:50%;'
+        f'background:{C_ACCENT if pct >= m else _PROG_DOT_OFF};'
+        f'border:2px solid #fff;font-size:9px;display:flex;align-items:center;'
+        f'justify-content:center;z-index:2;">{_PROGRESS_EMOJI}</div>'
+        for m in [25, 50, 75, 100]
+    )
+    st.markdown(
+        f'<div style="margin:1rem 0 0.25rem;">'
+        f'<div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">'
+        f'<span style="font-size:0.82rem;color:{C_MID};font-weight:600;">{_prog_msg}</span>'
+        f'<span style="font-size:0.82rem;color:{C_MUTED};font-weight:500;">{pct}%</span>'
+        f'</div>'
+        f'<div style="position:relative;background:{_PROG_TRACK};border-radius:99px;height:14px;">'
+        f'<div style="background:{_PROG_FILL};'
+        f'width:{pct}%;height:100%;border-radius:99px;'
+        f'transition:width 0.4s ease;min-width:{"0" if pct == 0 else "14px"};"></div>'
+        f'{_milestone_dots}'
+        f'</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
 
     st.markdown('<hr class="pp-divider">', unsafe_allow_html=True)
 
@@ -766,12 +1090,24 @@ with tab_today:
 # TAB 4 — PawPal Agent
 # ===========================================================================
 with tab_agent:
-    st.markdown('<div class="pp-section-title">🤖 PawPal Agent</div>', unsafe_allow_html=True)
+    _is_owner = st.session_state.user_role == "owner"
+    _agent_title = "🐾 PawPal Companion" if _is_owner else "🔧 PawPal Manager"
+    _agent_desc = (
+        "Ask me about your pets' health, habits, and how your care routine is going. "
+        "I'll give you wellness tips, flag what's overdue, and suggest routines. "
+        "Use the tabs above to add or change pets and tasks."
+        if _is_owner else
+        "Manage your full care operation in plain English — add pets, schedule tasks, "
+        "detect conflicts, complete care items, and get performance reports."
+    )
+    _chat_placeholder = (
+        "Ask about your pets' health, care summary, or routine suggestions…"
+        if _is_owner else
+        "Add pets, schedule tasks, check conflicts, or request a care report…"
+    )
+    st.markdown(f'<div class="pp-section-title">{_agent_title}</div>', unsafe_allow_html=True)
     st.markdown(
-        '<p style="color:#6B5B4E;font-size:0.9rem;margin-bottom:1rem;">'
-        "Chat with your AI pet care assistant. Ask me to add pets, schedule tasks, "
-        "check conflicts, or manage your care calendar in plain English."
-        "</p>",
+        f'<p style="color:{C_MID};font-size:0.9rem;margin-bottom:1rem;">{_agent_desc}</p>',
         unsafe_allow_html=True,
     )
 
@@ -821,7 +1157,7 @@ with tab_agent:
             st.markdown(msg["content"])
 
     # --- Chat input ---
-    user_input = st.chat_input("Ask PawPal+ anything about your pets…")
+    user_input = st.chat_input(_chat_placeholder)
 
     if user_input:
         # Append and render user message
@@ -841,7 +1177,11 @@ with tab_agent:
             with st.spinner("Thinking…"):
                 try:
                     from agent.core import run_agent
-                    trace = run_agent(user_input, owner, conversation_history=history)
+                    trace = run_agent(
+                        user_input, owner,
+                        conversation_history=history,
+                        user_role=st.session_state.user_role,
+                    )
                     storage.save(owner)
                 except Exception as exc:
                     trace = None
@@ -867,3 +1207,231 @@ with tab_agent:
                 # Refresh owner ref so sidebar stats update
                 st.session_state.owner = owner
                 st.rerun()
+
+
+# ===========================================================================
+# TAB 5 — Calendar
+# ===========================================================================
+with tab_calendar:
+    from datetime import timedelta
+
+    _is_owner_cal = st.session_state.user_role == "owner"
+    st.markdown('<div class="pp-section-title">📅 Calendar</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<p style="color:{C_MID};font-size:0.9rem;margin-bottom:1.25rem;">'
+        + ("View your pets' appointments, recurring care, and past schedule at a glance."
+           if _is_owner_cal else
+           "Full schedule overview — past, present, and projected future appointments across all pets.")
+        + "</p>",
+        unsafe_allow_html=True,
+    )
+
+    # ── Week navigator ────────────────────────────────────────────────────
+    today_cal = date.today()
+    if "cal_week_offset" not in st.session_state:
+        st.session_state.cal_week_offset = 0
+
+    nav_l, nav_mid, nav_r = st.columns([1, 3, 1])
+    with nav_l:
+        if st.button("← Prev week", key="cal_prev"):
+            st.session_state.cal_week_offset -= 1
+            st.rerun()
+    with nav_r:
+        if st.button("Next week →", key="cal_next"):
+            st.session_state.cal_week_offset += 1
+            st.rerun()
+
+    # Compute Monday of the displayed week
+    week_monday = today_cal - timedelta(days=today_cal.weekday()) + timedelta(weeks=st.session_state.cal_week_offset)
+    week_days   = [week_monday + timedelta(days=i) for i in range(7)]
+    week_label  = f"{week_monday.strftime('%b %d')} – {week_days[-1].strftime('%b %d, %Y')}"
+
+    with nav_mid:
+        st.markdown(
+            f'<div style="text-align:center;font-weight:700;font-size:1rem;'
+            f'color:{C_DARK};padding-top:0.45rem;">{week_label}</div>',
+            unsafe_allow_html=True,
+        )
+
+    if st.session_state.cal_week_offset != 0:
+        if st.button("Jump to today", key="cal_today"):
+            st.session_state.cal_week_offset = 0
+            st.rerun()
+
+    st.markdown("<div style='margin-top:0.5rem'></div>", unsafe_allow_html=True)
+
+    # ── Pet filter (admin sees all; owner always sees their own) ──────────
+    cal_pets = owner.get_pets()
+    if not _is_owner_cal:
+        cal_pet_options = ["All Pets"] + [p.name for p in cal_pets]
+        cal_pet_filter  = st.selectbox("Filter by Pet", cal_pet_options, key="cal_pet_filter")
+    else:
+        cal_pet_filter = "All Pets"
+
+    # ── Build task map: date → list of (Pet, Task) ────────────────────────
+    # For each task, project recurring occurrences into the displayed week.
+    def _project_tasks(pets, week_days):
+        """Return {date: [(pet, task_or_projected)]} for the given week."""
+        from collections import defaultdict
+        day_map = defaultdict(list)
+        week_set = set(week_days)
+        week_start, week_end = week_days[0], week_days[-1]
+
+        for pet in pets:
+            for task in pet.get_tasks():
+                base_date = task.due_date
+
+                if task.frequency == "once":
+                    if week_start <= base_date <= week_end:
+                        day_map[base_date].append((pet, task, False))
+
+                elif task.frequency == "daily":
+                    for day in week_days:
+                        # Show on this day if base_date <= day (task started on or before)
+                        if base_date <= day:
+                            # Check if a real task exists for this exact date already
+                            day_map[day].append((pet, task, day != base_date))
+
+                elif task.frequency == "weekly":
+                    # Project weekly: show on the same weekday if base_date <= week day
+                    for day in week_days:
+                        if base_date <= day and (day - base_date).days % 7 == 0:
+                            day_map[day].append((pet, task, day != base_date))
+
+        return day_map
+
+    # Apply pet filter
+    pets_for_cal = (
+        [p for p in cal_pets if p.name == cal_pet_filter]
+        if cal_pet_filter != "All Pets"
+        else cal_pets
+    )
+
+    day_map = _project_tasks(pets_for_cal, week_days)
+
+    # ── Render week grid ──────────────────────────────────────────────────
+    DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    cols = st.columns(7)
+
+    for col_idx, (col, day) in enumerate(zip(cols, week_days)):
+        is_today   = day == today_cal
+        is_past    = day < today_cal
+        is_weekend = col_idx >= 5
+
+        # Day header
+        header_bg  = C_ACCENT if is_today else (C_BORDER if is_past else C_SURFACE)
+        header_col = "#FFFFFF" if is_today else (C_MUTED if is_past else C_DARK)
+        border_col = C_ACCENT if is_today else C_BORDER
+
+        with col:
+            st.markdown(
+                f'<div style="border:1.5px solid {border_col};border-radius:12px;'
+                f'min-height:160px;overflow:hidden;margin-bottom:0.25rem;">'
+
+                # Header strip
+                f'<div style="background:{header_bg};padding:0.4rem 0.5rem;text-align:center;">'
+                f'<div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;'
+                f'letter-spacing:0.06em;color:{header_col};">{DAY_NAMES[col_idx]}</div>'
+                f'<div style="font-size:1.1rem;font-weight:800;color:{header_col};">{day.day}</div>'
+                f'</div>'
+
+                # Task pills
+                f'<div style="padding:0.4rem 0.35rem;">',
+                unsafe_allow_html=True,
+            )
+
+            tasks_this_day = day_map.get(day, [])
+
+            if not tasks_this_day:
+                st.markdown(
+                    f'<p style="font-size:0.65rem;color:{C_MUTED};text-align:center;'
+                    f'margin:0.5rem 0;">—</p>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                for pet, task, is_projected in tasks_this_day:
+                    emoji = SPECIES_EMOJI.get(pet.species, "🐾")
+
+                    if is_projected:
+                        # Future projected occurrence of a recurring task
+                        pill_bg  = C_BLUE_BG
+                        pill_col = C_BLUE
+                        dot      = "↻"
+                    elif task.completed and day <= today_cal:
+                        pill_bg  = C_GREEN_BG
+                        pill_col = C_GREEN
+                        dot      = "✓"
+                    elif not task.completed and day < today_cal:
+                        # Overdue
+                        pill_bg  = C_RED_BG
+                        pill_col = C_RED
+                        dot      = "!"
+                    else:
+                        # Upcoming or today pending
+                        pill_bg  = _PILL_ACC_BG
+                        pill_col = C_ACCENT
+                        dot      = "•"
+
+                    freq_badge = (
+                        "↻d" if task.frequency == "daily" else
+                        "↻w" if task.frequency == "weekly" else ""
+                    )
+
+                    st.markdown(
+                        f'<div style="background:{pill_bg};border-radius:6px;'
+                        f'padding:0.25rem 0.35rem;margin-bottom:0.2rem;">'
+                        f'<div style="font-size:0.6rem;font-weight:700;color:{pill_col};">'
+                        f'{dot} {task.time} {emoji}</div>'
+                        f'<div style="font-size:0.6rem;color:{pill_col};'
+                        f'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
+                        f'max-width:100%;">'
+                        f'{task.description[:18]}{"…" if len(task.description)>18 else ""}'
+                        f'{" " + freq_badge if freq_badge else ""}</div>'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+
+            st.markdown('</div></div>', unsafe_allow_html=True)
+
+    # ── Legend ────────────────────────────────────────────────────────────
+    st.markdown("<div style='margin-top:1rem'></div>", unsafe_allow_html=True)
+    st.markdown(
+        f'<div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;'
+        f'font-size:0.75rem;color:{C_MID};">'
+        f'<span style="display:flex;align-items:center;gap:0.3rem;">'
+        f'<span style="background:{C_GREEN_BG};color:{C_GREEN};border-radius:4px;'
+        f'padding:0.1rem 0.5rem;font-weight:600;">✓ Done</span></span>'
+        f'<span style="display:flex;align-items:center;gap:0.3rem;">'
+        f'<span style="background:{_PILL_ACC_BG};color:{C_ACCENT};border-radius:4px;'
+        f'padding:0.1rem 0.5rem;font-weight:600;">• Pending</span></span>'
+        f'<span style="display:flex;align-items:center;gap:0.3rem;">'
+        f'<span style="background:{C_RED_BG};color:{C_RED};border-radius:4px;'
+        f'padding:0.1rem 0.5rem;font-weight:600;">! Overdue</span></span>'
+        f'<span style="display:flex;align-items:center;gap:0.3rem;">'
+        f'<span style="background:{C_BLUE_BG};color:{C_BLUE};border-radius:4px;'
+        f'padding:0.1rem 0.5rem;font-weight:600;">↻ Recurring (projected)</span></span>'
+        f'<span style="color:{C_MUTED};">↻d = daily · ↻w = weekly</span>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    # ── Month summary strip ───────────────────────────────────────────────
+    st.markdown('<hr class="pp-divider">', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="pp-label" style="margin-bottom:0.75rem;">This week at a glance</div>',
+        unsafe_allow_html=True,
+    )
+
+    total_week  = sum(len(v) for v in day_map.values())
+    done_week   = sum(1 for tasks in day_map.values()
+                      for (_, t, proj) in tasks if t.completed and not proj)
+    overdue_week = sum(1 for tasks in day_map.values()
+                       for (_, t, proj) in tasks
+                       if not t.completed and not proj and t.due_date < today_cal)
+    projected_week = sum(1 for tasks in day_map.values() for (_, _, proj) in tasks if proj)
+
+    s1, s2, s3, s4 = st.columns(4)
+    s1.metric("Total events", total_week)
+    s2.metric("Completed", done_week)
+    s3.metric("Overdue", overdue_week)
+    s4.metric("Recurring (projected)", projected_week)
